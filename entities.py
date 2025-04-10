@@ -1,10 +1,12 @@
 from initial_access import Cell  # Importamos la clase `Cell` correctamente
 
 class UE:
-    def __init__(self, supported_plmn_ids):
+    def __init__(self, supported_plmn_ids, identity):
         self.supported_plmn_ids = supported_plmn_ids
         self.state = "Idle"
         self.selected_cell = None
+        self.rm_state = "RM-DEGISTERED"
+        self.identity = identity
 
     def search_cells(self, available_cells):
         """Simulate the UE searching for available cells"""
@@ -48,6 +50,14 @@ class UE:
         print(f"UE: Received RRC connection setup response and completed setup.")
         self.state = "RRC Connected"
         return "RRC Connection Setup Complete"
+    
+    def register(self,amf):
+        print(f"UE: Sending REGISTRATION REQUEST to AMF with identity: {self.identity}")
+        if amf.receive_registration_request(self.identity):
+            self.state="RM-REGISTERED"
+        else:
+            print(f"UE: with identity: {self.identity} not authenticated")
+
 
 
 class gNB:
@@ -76,3 +86,70 @@ class gNB:
         """Simulate gNB completing the RRC connection setup"""
         print(f"gNB: Sending RRC connection setup to UE with configuration: {ue.selected_cell.frequency} Hz")
         ue.rrc_connection_setup_complete()
+
+
+class Core:
+    def __init__(self):
+        self.amf = AMF()
+
+class AMF:
+    def __init__(self):
+        self.ausf = AUSF()
+        self.udm = UDM()
+
+    def receive_registration_request(self, ue_identity):
+        print(f"AMF: Received REGISTRATION REQUEST from UE with identity: {ue_identity}")
+        return self.authenticate(ue_identity)
+
+
+    def authenticate(self, ue_identity):
+        print(f"AMF: Initiating authentication with AUSF...")
+        auth_data = self.ausf.authenticate(ue_identity,self.udm)
+        if auth_data["authenticated"]:
+            print(f"AMF: Authentication successful for UE: {ue_identity}")
+            print("AMF: Sending SECURITY MODE COMMAND...")
+            print("UE: SECURITY MODE COMPLETE received.")
+            print("AMF: Requesting PEI from UE...")
+            print("UE: Sending IDENTITY RESPONSE with PEI.")
+            print("AMF: Checking PEI with 5G-EIR... (skipped)")
+
+            print("AMF: Registering with UDM...")
+            self.udm.register_ue(ue_identity)
+            print("AMF: Getting subscription data from UDM...")
+            self.udm.get_subscription_data(ue_identity)
+
+            print("AMF: Sending REGISTRATION ACCEPT to UE...")
+            print("UE: REGISTRATION COMPLETE sent.")
+            return True
+        else:
+            print(f"AMF: Authentication failed for UE: {ue_identity}")
+            return False
+
+
+
+class AUSF:
+    def authenticate(self, ue_identity,udm):
+        print(f"AUSF: Authenticating UE identity: {ue_identity}")
+        return {"authenticated": udm.authenticate(ue_identity), "algorithm": "5G-AKA"}
+
+class UDM:
+
+    def __init__(self):
+        self.subscriber_data = {"imsi-001010123456789","imsi-001310123456789"}
+
+    def authenticate(self, ue_identity):
+        print(f"UDM: Authenticating UE {ue_identity}")
+        if ue_identity in self.subscriber_data:
+            return True
+        else:
+            return False
+
+    def register_ue(self, ue_identity):
+        print(f"UDM: UE registered: {ue_identity}")
+    
+
+    def get_subscription_data(self, ue_identity):
+        print(f"UDM: Subscription data retrieved for UE: {ue_identity}")
+
+
+

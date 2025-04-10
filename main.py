@@ -5,9 +5,13 @@ import rrc
 def main():
     # Create the base station (gNB)
     gnb = entities.gNB()
-    
-    # Create a UE with supported PLMN IDs
-    ue = entities.UE(supported_plmn_ids=["310260", "40006"])
+
+    #Create Core
+
+    core = entities.Core()
+
+    # Create a UE with supported PLMN IDs and its identity
+    ue = entities.UE(supported_plmn_ids=["310260", "40006"], identity="imsi-001010123456789" )
     
     # Add cells to gNB
     gnb.add_cell(initial_access.Cell(cell_id=1, plmn_id="310260", signal_strength=75, frequency=2100, cell_type="Macro"))
@@ -33,7 +37,12 @@ def main():
     rrc_response = rrc_handler.rrc_connection_setup(gnb, ue)
     
     # Complete the RRC connection setup process
-    rrc_handler.rrc_connection_setup_complete(ue)
+    if rrc_handler.rrc_connection_setup_complete(ue)=="RRC_CONNECTED":
+        ue.register(core.amf)
+    else:
+        print("RRC is not setup")
+
+     
 
 if __name__ == "__main__":
     main()

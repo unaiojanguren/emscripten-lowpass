@@ -1,9 +1,9 @@
 class RRC:
     def __init__(self):
-        self.state = "Idle"
+        self.state = "RRC_IDLE"
     
     def rrc_connection_request(self, ue):
-        """ Simulate UE sending RRC connection request to gNB with data """
+        """ Simulate UE sending RRC connection requeºst to gNB with data """
         request_data = ue.rrc_connection_request()
         print(f"UE: Sending RRC connection request to gNB with the following data:")
         print(f"    PLMN ID: {request_data['plmn_id']}, Cell ID: {request_data['cell_id']}, Signal Strength: {request_data['signal_strength']} dBm, Frequency: {request_data['frequency']} Hz")
@@ -19,5 +19,6 @@ class RRC:
 
     def rrc_connection_setup_complete(self, ue):
         """ Simulate UE completing the RRC connection setup """
+        self.state = "RRC_CONNECTED"
         print(f"UE: RRC connection setup complete. Configuration is confirmed and the UE is now connected.")
-        return "RRC Connection Setup Complete"
+        return self.state
