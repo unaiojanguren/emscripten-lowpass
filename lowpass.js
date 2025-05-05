@@ -1663,6 +1663,7 @@ var wasmExports;
 createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors', 0);
 var _low_pass_filter = Module['_low_pass_filter'] = createExportWrapper('low_pass_filter', 3);
+var _compute_fft_magnitude = Module['_compute_fft_magnitude'] = createExportWrapper('compute_fft_magnitude', 3);
 var _fflush = createExportWrapper('fflush', 1);
 var _strerror = createExportWrapper('strerror', 1);
 var _malloc = Module['_malloc'] = createExportWrapper('malloc', 1);

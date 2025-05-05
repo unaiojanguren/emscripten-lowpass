@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Low-pass Filter Demo</title>
+  <title>Low-pass Filter with FFT</title>
   <script src="lowpass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -14,21 +14,18 @@
       padding: 2rem;
       color: #333;
     }
-
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       background: white;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 1rem;
     }
-
     button {
       background-color: #007aff;
       color: white;
@@ -40,11 +37,9 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-
     button:hover {
       background-color: #005fd4;
     }
-
     pre {
       background-color: #f0f0f0;
       padding: 1rem;
@@ -53,7 +48,6 @@
       font-size: 0.9rem;
       margin-top: 1rem;
     }
-
     canvas {
       margin-top: 2rem;
       border: 1px solid #ddd;
@@ -63,10 +57,11 @@
 </head>
 <body>
   <div class="container">
-    <h1>Low-pass Filter Demo</h1>
+    <h1>Low-pass Filter with FFT</h1>
     <button onclick="runFilter()">Run Filter</button>
     <pre id="output"></pre>
-    <canvas id="chart" width="700" height="300"></canvas>
+    <canvas id="timeChart" width="800" height="300"></canvas>
+    <canvas id="fftChart" width="800" height="300"></canvas>
   </div>
   <script src="index.js"></script>
 </body>
