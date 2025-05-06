@@ -1663,6 +1663,8 @@ var wasmExports;
 createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors', 0);
 var _low_pass_filter = Module['_low_pass_filter'] = createExportWrapper('low_pass_filter', 3);
+var _high_pass_filter = Module['_high_pass_filter'] = createExportWrapper('high_pass_filter', 3);
+var _moving_average_filter = Module['_moving_average_filter'] = createExportWrapper('moving_average_filter', 3);
 var _compute_fft_magnitude = Module['_compute_fft_magnitude'] = createExportWrapper('compute_fft_magnitude', 3);
 var _fflush = createExportWrapper('fflush', 1);
 var _strerror = createExportWrapper('strerror', 1);

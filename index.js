@@ -1,6 +1,8 @@
 const runFilter = async () => {
   const length = 64;
-  const alpha = 0.1;
+  const alpha = parseFloat(document.getElementById("alpha").value);
+
+  document.getElementById("alphaValue").textContent = alpha.toFixed(2);
 
   const input = new Float32Array(length).map((_, i) => Math.sin(i * 0.3) + 0.2 * Math.random());
 
@@ -15,10 +17,21 @@ const runFilter = async () => {
   Module.HEAPF32.set(input, inputPtr / input.BYTES_PER_ELEMENT);
   Module.HEAPF32.set(input, filteredPtr / input.BYTES_PER_ELEMENT);
 
-  const filter = Module.cwrap("low_pass_filter", null, ["number", "number", "number"]);
+  const selectedFilter = document.getElementById("filterType").value;
+
+  const lowpass = Module.cwrap("low_pass_filter", null, ["number", "number", "number"]);
+  const highpass = Module.cwrap("high_pass_filter", null, ["number", "number", "number"]);
+  const moving = Module.cwrap("moving_average_filter", null, ["number", "number", "number"]);
   const fft = Module.cwrap("compute_fft_magnitude", null, ["number", "number", "number"]);
 
-  filter(filteredPtr, length, alpha);
+  if (selectedFilter === "low") {
+    lowpass(filteredPtr, length, alpha);
+  } else if (selectedFilter === "high") {
+    highpass(filteredPtr, length, alpha);
+  } else if (selectedFilter === "moving") {
+    moving(filteredPtr, length, alpha);  // usando alpha como window size temporal
+  }
+
   fft(inputPtr, fftOrigPtr, length);
   fft(filteredPtr, fftFiltPtr, length);
 
@@ -26,24 +39,14 @@ const runFilter = async () => {
   const fftOrig = new Float32Array(Module.HEAPF32.buffer, fftOrigPtr, length);
   const fftFilt = new Float32Array(Module.HEAPF32.buffer, fftFiltPtr, length);
 
-  document.getElementById("output").textContent =
-    "Filtered signal: [" + Array.from(filtered).map(n => n.toFixed(2)).join(", ") + "]";
-
   Module._free(inputPtr);
   Module._free(filteredPtr);
   Module._free(fftOrigPtr);
   Module._free(fftFiltPtr);
 
-  // Destroy existing charts
-  if (window.timeChart && typeof window.timeChart.destroy === "function") {
-    window.timeChart.destroy();
-  }
-  if (window.fftChart && typeof window.fftChart.destroy === "function") {
-    window.fftChart.destroy();
-  }
-  
+  if (window.timeChart?.destroy) window.timeChart.destroy();
+  if (window.fftChart?.destroy) window.fftChart.destroy();
 
-  // Draw time-domain chart
   const ctx1 = document.getElementById("timeChart").getContext("2d");
   window.timeChart = new Chart(ctx1, {
     type: 'line',
@@ -63,7 +66,6 @@ const runFilter = async () => {
     }
   });
 
-  // Draw FFT chart
   const ctx2 = document.getElementById("fftChart").getContext("2d");
   window.fftChart = new Chart(ctx2, {
     type: 'bar',
